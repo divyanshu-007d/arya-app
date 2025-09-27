@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.arya.ndatraining"
+      "bundleIdentifier": "com.arya"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,12 +23,14 @@
         "backgroundColor": "#4169E1"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.arya.ndatraining"
+      "package": "com.arya",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
-      "output": "static",
       "name": "ARYA - NDA Training",
       "shortName": "ARYA",
       "description": "AI-powered NDA preparation platform",
@@ -45,7 +47,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "your-project-id-here"
+        "projectId": "ed9ab82a-23bc-47e8-8c72-991fe478dee9"
       }
     }
   }
