@@ -59,7 +59,7 @@ const ModeSwitcherFAB = () => {
       description: 'Social Learning'
     }
   ];
-
+``
   const currentMode = modes.find(mode => route.name === mode.id) || modes[0];
 
   const toggleFAB = () => {    

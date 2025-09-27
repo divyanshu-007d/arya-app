@@ -72,7 +72,7 @@ const LoginScreen = ({ navigation }) => {
       
       if (result.success) {
         Alert.alert(
-          '🎉 Welcome to NDA StudyBuddy!',
+          '🎉 Welcome to Arya!',
           `Hello ${mockGoogleUser.name}! Ready to chase your defense dreams?`,
           [{ text: 'Let\'s Go!', style: 'default' }]
         );

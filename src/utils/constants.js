@@ -4,7 +4,7 @@
  */
 
 export const NDA_CONFIG = {
-  APP_NAME: 'NDA StudyBuddy',
+  APP_NAME: 'Arya',
   APP_TAGLINE: 'Chase Your Defense Dreams with Calmness',
   
   // NDA Subject Configuration
