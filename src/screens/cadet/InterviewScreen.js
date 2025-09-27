@@ -54,7 +54,7 @@ const InterviewScreen = () => {
           style: 'default',
           onPress: async () => {
             try {
-              await WebBrowser.openBrowserAsync('https://lab.anam.ai/share/T6ku1CFoOoCHOf3MrccQO');
+              await WebBrowser.openBrowserAsync('https://lab.anam.ai/share/le6dbFPbfccoAKA4CIDuB');
             } catch (error) {
               Alert.alert('Error', 'Unable to open the interview. Please try again.');
             }

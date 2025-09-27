@@ -53,7 +53,7 @@ const MentorModeScreen = ({ navigation }) => {
 
   const openMentorChat = async () => {
     try {
-      const mentorURL = 'https://lab.anam.ai/share/p2m3tJhEDQsnDPw4tERY-';
+      const mentorURL = 'https://lab.anam.ai/share/NT8wt26o3fDvClwtzr34_';
       
       console.log('Opening mentor chat URL:', mentorURL);
       
