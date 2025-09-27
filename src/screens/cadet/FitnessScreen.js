@@ -54,7 +54,7 @@ const FitnessScreen = () => {
   const handleStartExercise = (exercise) => {
     Alert.alert(
       `Start ${exercise.name} Training?`,
-      'This will open the Drona Fitness Tracker to guide you through the exercise.',
+      'This will open the Fitness Tracker to guide you through the exercise.',
       [
         { text: 'Cancel', style: 'cancel' },
         {

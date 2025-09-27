@@ -1,39 +1,50 @@
 /**
- * Profile Screen - User Settings and Progress Overview
- * Beautiful profile interface with modern design
+ * Profile Screen - Modern iOS-style Profile & Leaderboard
+ * Clean interface with royal blue theme and leaderboard
  */
 import React from 'react';
 import {
   View,
   StyleSheet,
   ScrollView,
-  StatusBar,
   TouchableOpacity,
   Alert,
+  Dimensions,
 } from 'react-native';
 import {
-  Text,
-  Card,
   Avatar,
-  Surface,
-  Divider,
   Switch,
-  Button,
 } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
+import {
+  AryaScreen,
+  AryaCard,
+  AryaText,
+  AryaContainer,
+} from '../../components/design-system';
+
+const { width } = Dimensions.get('window');
 
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = React.useState(false);
 
+  const leaderboardData = [
+    { rank: 1, name: 'Arjun Singh', score: 2450, avatar: '🥇', isCurrentUser: false },
+    { rank: 2, name: 'Priya Sharma', score: 2380, avatar: '🥈', isCurrentUser: false },
+    { rank: 3, name: 'Rahul Kumar', score: 2250, avatar: '🥉', isCurrentUser: false },
+    { rank: 4, name: 'You', score: 1250, avatar: '👤', isCurrentUser: true },
+    { rank: 5, name: 'Sneha Patel', score: 1180, avatar: '⭐', isCurrentUser: false },
+    { rank: 6, name: 'Vikram Yadav', score: 1050, avatar: '⭐', isCurrentUser: false },
+    { rank: 7, name: 'Anita Das', score: 950, avatar: '⭐', isCurrentUser: false },
+  ];
+
   const achievements = [
-    { icon: '🎯', title: 'First Login', description: 'Welcome to NDA StudyBuddy!', earned: true },
-    { icon: '📚', title: 'Study Starter', description: 'Complete 10 study sessions', earned: false },
-    { icon: '💪', title: 'Fitness Enthusiast', description: 'Complete 20 workouts', earned: false },
-    { icon: '🎤', title: 'Interview Pro', description: 'Complete 15 mock interviews', earned: false },
+    { icon: '🎯', title: 'First Login', description: 'Welcome to ARYA!', earned: true },
+    { icon: '📚', title: 'Study Warrior', description: 'Complete 5 study sessions', earned: true },
+    { icon: '💪', title: 'Fitness Beast', description: 'Complete 10 workouts', earned: true },
+    { icon: '🎤', title: 'Interview Pro', description: 'Complete 5 mock interviews', earned: true },
     { icon: '🏆', title: 'NDA Ready', description: 'Reach 80% readiness score', earned: false },
   ];
 
@@ -62,240 +73,334 @@ const ProfileScreen = () => {
     );
   };
 
+  const LeaderboardItem = ({ item }) => (
+    <AryaCard 
+      variant="elevated" 
+      elevation={item.isCurrentUser ? 3 : 1}
+      style={[styles.leaderboardItem, item.isCurrentUser && styles.currentUserItem]}
+      padding="medium"
+    >
+      <View style={styles.leaderboardContent}>
+        <View style={styles.leaderboardLeft}>
+          <View style={[styles.rankBadge, item.rank <= 3 && styles.topRankBadge]}>
+            <AryaText.Label color={item.rank <= 3 ? '#FFFFFF' : '#666'} weight="bold">
+              #{item.rank}
+            </AryaText.Label>
+          </View>
+          <AryaText style={styles.leaderboardAvatar}>{item.avatar}</AryaText>
+          <View style={styles.leaderboardInfo}>
+            <AryaText.Body 
+              color={item.isCurrentUser ? '#4169E1' : '#1a1a1a'} 
+              weight={item.isCurrentUser ? 'bold' : 'medium'}
+            >
+              {item.name}
+            </AryaText.Body>
+            <AryaText.Caption color="#666">
+              {item.score} points
+            </AryaText.Caption>
+          </View>
+        </View>
+        {item.isCurrentUser && (
+          <View style={styles.currentUserBadge}>
+            <AryaText.Caption color="#4169E1" weight="semibold">You</AryaText.Caption>
+          </View>
+        )}
+      </View>
+    </AryaCard>
+  );
+
   const AchievementCard = ({ achievement }) => (
-    <Surface 
+    <AryaCard 
+      variant="elevated" 
+      elevation={achievement.earned ? 2 : 1}
       style={[
         styles.achievementCard,
         achievement.earned ? styles.earnedAchievement : styles.lockedAchievement
-      ]} 
-      elevation={achievement.earned ? 4 : 2}
+      ]}
+      padding="medium"
     >
-      <Text style={[
-        styles.achievementIcon,
-        !achievement.earned && styles.lockedIcon
-      ]}>
-        {achievement.earned ? achievement.icon : '🔒'}
-      </Text>
-      <View style={styles.achievementInfo}>
-        <Text style={[
-          styles.achievementTitle,
-          !achievement.earned && styles.lockedText
-        ]}>
-          {achievement.title}
-        </Text>
-        <Text style={[
-          styles.achievementDescription,
-          !achievement.earned && styles.lockedText
-        ]}>
-          {achievement.description}
-        </Text>
+      <View style={[styles.achievementIconWrapper, achievement.earned ? styles.earnedIconWrapper : styles.lockedIconWrapper]}>
+        <AryaText style={styles.achievementIcon}>
+          {achievement.earned ? achievement.icon : '🔒'}
+        </AryaText>
       </View>
-    </Surface>
+      <View style={styles.achievementInfo}>
+        <AryaText.Body 
+          color={achievement.earned ? '#1a1a1a' : '#999'} 
+          weight="semibold"
+          style={styles.achievementTitle}
+        >
+          {achievement.title}
+        </AryaText.Body>
+        <AryaText.Caption 
+          color={achievement.earned ? '#666' : '#999'}
+          style={styles.achievementDescription}
+        >
+          {achievement.description}
+        </AryaText.Caption>
+      </View>
+      {achievement.earned && (
+        <View style={styles.achievementBadge}>
+          <AryaText.Caption color="#4169E1" weight="bold">✓</AryaText.Caption>
+        </View>
+      )}
+    </AryaCard>
   );
 
   const SettingsItem = ({ option }) => (
     <TouchableOpacity style={styles.settingsItem}>
       <View style={styles.settingsLeft}>
-        <Text style={styles.settingsIcon}>{option.icon}</Text>
-        <Text style={styles.settingsTitle}>{option.title}</Text>
+        <AryaText style={styles.settingsIcon}>{option.icon}</AryaText>
+        <AryaText.Body color="#1a1a1a" weight="medium">{option.title}</AryaText.Body>
       </View>
       {option.hasSwitch ? (
         <Switch
           value={option.value}
           onValueChange={option.onToggle}
-          color="#667eea"
+          color="#4169E1"
         />
       ) : (
-        <Text style={styles.settingsArrow}>›</Text>
+        <AryaText style={styles.settingsArrow}>›</AryaText>
       )}
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
-      <LinearGradient
-        colors={['#667eea', '#764ba2']}
-        style={styles.headerGradient}
+    <AryaScreen statusBarStyle="dark-content" backgroundColor="#FAFAFA">
+      <ScrollView 
+        style={styles.scrollView} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
-        <SafeAreaView style={styles.safeArea}>
-          
-          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-            
-            {/* Profile Header */}
-            <View style={styles.profileHeader}>
+        
+        {/* Header */}
+        <View style={styles.header}>
+          <AryaText.Display color="#4169E1" weight="bold">
+            Profile
+          </AryaText.Display>
+        </View>
+
+        {/* Profile Card */}
+        <View style={styles.profileSection}>
+          <AryaCard variant="elevated" elevation={3} style={styles.profileCard} padding="large">
+            <AryaContainer center>
               <Avatar.Image 
-                size={100} 
+                size={80} 
                 source={{ uri: user?.photo || 'https://via.placeholder.com/100' }}
                 style={styles.avatar}
               />
-              <Text style={styles.userName}>{user?.name || 'NDA Aspirant'}</Text>
-              <Text style={styles.userEmail}>{user?.email || 'cadet@nda.edu'}</Text>
-              <Text style={styles.joinDate}>
+              <AryaText.Title color="#1a1a1a" weight="bold" style={styles.userName}>
+                {user?.name || 'NDA Aspirant'}
+              </AryaText.Title>
+              <AryaText.Body color="#666" style={styles.userEmail}>
+                {user?.email || 'cadet@nda.edu'}
+              </AryaText.Body>
+              <AryaText.Caption color="#999" style={styles.joinDate}>
                 Joined {user?.joinDate ? new Date(user.joinDate).toLocaleDateString() : 'Today'}
-              </Text>
-            </View>
+              </AryaText.Caption>
+            </AryaContainer>
+          </AryaCard>
+        </View>
 
-            {/* Stats Cards */}
-            <View style={styles.statsSection}>
-              <View style={styles.statsGrid}>
-                <Surface style={styles.statCard} elevation={4}>
-                  <Text style={styles.statNumber}>0</Text>
-                  <Text style={styles.statLabel}>Study Hours</Text>
-                </Surface>
-                
-                <Surface style={styles.statCard} elevation={4}>
-                  <Text style={styles.statNumber}>0</Text>
-                  <Text style={styles.statLabel}>Workouts</Text>
-                </Surface>
-                
-                <Surface style={styles.statCard} elevation={4}>
-                  <Text style={styles.statNumber}>0</Text>
-                  <Text style={styles.statLabel}>Interviews</Text>
-                </Surface>
+        {/* Stats Grid */}
+        <View style={styles.statsSection}>
+          <View style={styles.statsGrid}>
+            <AryaCard variant="elevated" elevation={1} style={styles.statCard} padding="medium">
+              <AryaContainer center>
+                <AryaText.Title color="#4169E1" weight="bold">25</AryaText.Title>
+                <AryaText.Caption color="#666">Hour</AryaText.Caption>
+              </AryaContainer>
+            </AryaCard>
+            
+            <AryaCard variant="elevated" elevation={1} style={styles.statCard} padding="medium">
+              <AryaContainer center>
+                <AryaText.Title color="#4169E1" weight="bold">18</AryaText.Title>
+                <AryaText.Caption color="#666">Work</AryaText.Caption>
+              </AryaContainer>
+            </AryaCard>
+            
+            <AryaCard variant="elevated" elevation={1} style={styles.statCard} padding="medium">
+              <AryaContainer center>
+                <AryaText.Title color="#4169E1" weight="bold">12</AryaText.Title>
+                <AryaText.Caption color="#666">INTV</AryaText.Caption>
+              </AryaContainer>
+            </AryaCard>
+          </View>
+        </View>
+
+        {/* Leaderboard Section */}
+        <View style={styles.leaderboardSection}>
+          <AryaText.Headline color="#1a1a1a" weight="semibold" style={styles.sectionTitle}>
+            🏆 Leaderboard
+          </AryaText.Headline>
+          
+          {leaderboardData.map((item, index) => (
+            <LeaderboardItem key={index} item={item} />
+          ))}
+          
+          <TouchableOpacity style={styles.viewAllButton}>
+            <AryaText.Body color="#4169E1" weight="semibold">View Full Leaderboard</AryaText.Body>
+          </TouchableOpacity>
+        </View>
+
+        {/* Achievements Section */}
+        <View style={styles.achievementsSection}>
+          <AryaText.Headline color="#1a1a1a" weight="semibold" style={styles.sectionTitle}>
+            🏆 Achievements
+          </AryaText.Headline>
+          {achievements.map((achievement, index) => (
+            <AchievementCard key={index} achievement={achievement} />
+          ))}
+        </View>
+
+        {/* Settings Section */}
+        <View style={styles.settingsSection}>
+          <AryaText.Headline color="#1a1a1a" weight="semibold" style={styles.sectionTitle}>
+            ⚙️ Settings
+          </AryaText.Headline>
+          <AryaCard variant="elevated" elevation={1} style={styles.settingsCard}>
+            {settingsOptions.map((option, index) => (
+              <View key={index}>
+                <SettingsItem option={option} />
+                {index < settingsOptions.length - 1 && <View style={styles.settingsDivider} />}
               </View>
-            </View>
+            ))}
+          </AryaCard>
+        </View>
 
-            {/* Main Content */}
-            <View style={styles.mainContent}>
-              
-              {/* Achievements Section */}
-              <View style={styles.achievementsSection}>
-                <Text style={styles.sectionTitle}>🏆 Achievements</Text>
-                {achievements.map((achievement, index) => (
-                  <AchievementCard key={index} achievement={achievement} />
-                ))}
-              </View>
+        {/* Logout Button */}
+        <View style={styles.logoutSection}>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <AryaText.Body color="#E74C3C" weight="semibold">
+              🚪 Sign Out
+            </AryaText.Body>
+          </TouchableOpacity>
+        </View>
 
-              {/* Settings Section */}
-              <View style={styles.settingsSection}>
-                <Text style={styles.sectionTitle}>⚙️ Settings</Text>
-                <Card style={styles.settingsCard} elevation={4}>
-                  <Card.Content style={styles.settingsContent}>
-                    {settingsOptions.map((option, index) => (
-                      <View key={index}>
-                        <SettingsItem option={option} />
-                        {index < settingsOptions.length - 1 && (
-                          <Divider style={styles.settingsDivider} />
-                        )}
-                      </View>
-                    ))}
-                  </Card.Content>
-                </Card>
-              </View>
-
-              {/* Logout Button */}
-              <View style={styles.logoutSection}>
-                <Button
-                  mode="outlined"
-                  onPress={handleLogout}
-                  style={styles.logoutButton}
-                  labelStyle={styles.logoutButtonLabel}
-                  icon="logout"
-                >
-                  Sign Out
-                </Button>
-              </View>
-
-              <View style={styles.bottomSpacing} />
-
-            </View>
-
-          </ScrollView>
-        </SafeAreaView>
-      </LinearGradient>
-    </SafeAreaProvider>
+      </ScrollView>
+    </AryaScreen>
   );
 };
 
 const styles = StyleSheet.create({
-  headerGradient: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
+    backgroundColor: '#FAFAFA',
   },
-  profileHeader: {
+  scrollContent: {
+    paddingBottom: 120, // Extra space for tab bar
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 60,
+    paddingBottom: 20,
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 32,
+  },
+  
+  // Profile Section
+  profileSection: {
+    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
+  profileCard: {
+    backgroundColor: '#FFFFFF',
   },
   avatar: {
-    marginBottom: 16,
-    elevation: 8,
+    marginBottom: 12,
   },
   userName: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#FFFFFF',
     marginBottom: 4,
   },
   userEmail: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   joinDate: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
     fontStyle: 'italic',
   },
+  
+  // Stats Section
   statsSection: {
-    paddingHorizontal: 24,
-    marginBottom: 24,
+    paddingHorizontal: 16,
+    marginBottom: 32,
   },
   statsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 12,
   },
   statCard: {
     flex: 1,
-    marginHorizontal: 4,
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
   },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#667eea',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666666',
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  mainContent: {
-    backgroundColor: '#F5F5F5',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    flex: 1,
-    paddingTop: 24,
-  },
-  achievementsSection: {
-    paddingHorizontal: 24,
+  
+  // Leaderboard Section
+  leaderboardSection: {
+    paddingHorizontal: 16,
     marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#2d3436',
     marginBottom: 16,
+  },
+  leaderboardItem: {
+    backgroundColor: '#FFFFFF',
+    marginBottom: 8,
+  },
+  currentUserItem: {
+    backgroundColor: '#F0F4FF',
+    borderWidth: 1,
+    borderColor: '#4169E1',
+  },
+  leaderboardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  leaderboardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  rankBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F8F9FA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  topRankBadge: {
+    backgroundColor: '#4169E1',
+  },
+  leaderboardAvatar: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  leaderboardInfo: {
+    flex: 1,
+  },
+  currentUserBadge: {
+    backgroundColor: '#4169E1',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  viewAllButton: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    marginTop: 8,
+  },
+  
+  // Achievements Section
+  achievementsSection: {
+    paddingHorizontal: 16,
+    marginBottom: 32,
   },
   achievementCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 12,
+    backgroundColor: '#FFFFFF',
+    marginBottom: 8,
   },
   earnedAchievement: {
     backgroundColor: '#FFFFFF',
@@ -303,9 +408,22 @@ const styles = StyleSheet.create({
   lockedAchievement: {
     backgroundColor: '#F8F9FA',
   },
+  achievementIconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  earnedIconWrapper: {
+    backgroundColor: '#F0F4FF',
+  },
+  lockedIconWrapper: {
+    backgroundColor: '#F5F5F5',
+  },
   achievementIcon: {
-    fontSize: 32,
-    marginRight: 16,
+    fontSize: 24,
   },
   lockedIcon: {
     opacity: 0.5,
@@ -314,35 +432,35 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   achievementTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2d3436',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   achievementDescription: {
-    fontSize: 14,
-    color: '#636e72',
+    // No additional styles needed
   },
-  lockedText: {
-    opacity: 0.5,
+  achievementBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#F0F4FF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  
+  // Settings Section
   settingsSection: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     marginBottom: 32,
   },
   settingsCard: {
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  settingsContent: {
-    padding: 0,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 8,
   },
   settingsItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   settingsLeft: {
     flexDirection: 'row',
@@ -350,38 +468,32 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingsIcon: {
-    fontSize: 24,
+    fontSize: 20,
     marginRight: 16,
   },
-  settingsTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#2d3436',
-  },
   settingsArrow: {
-    fontSize: 24,
+    fontSize: 20,
     color: '#ddd',
     fontWeight: '300',
   },
   settingsDivider: {
-    marginLeft: 60,
+    height: 1,
+    backgroundColor: '#F0F0F0',
+    marginLeft: 52,
   },
+  
+  // Logout Section
   logoutSection: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     marginBottom: 32,
   },
   logoutButton: {
-    borderColor: '#e17055',
-    borderWidth: 2,
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-  },
-  logoutButtonLabel: {
-    color: '#e17055',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  bottomSpacing: {
-    height: 100, // Account for tab bar
+    borderWidth: 1,
+    borderColor: '#FFE8E8',
+    paddingVertical: 16,
+    alignItems: 'center',
   },
 });
 

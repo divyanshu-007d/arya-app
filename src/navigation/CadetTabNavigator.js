@@ -1,12 +1,12 @@
 /**
- * Cadet Tab Navigator - Bottom Tab Navigation
- * Modern bottom navigation for Cadet Mode (Solo Training)
+ * ARYA Cadet Tab Navigator - Modern Material Design Bottom Navigation
+ * Beautiful bottom navigation for Cadet Mode with Expo Icons and smooth animations
  */
-import React from 'react';
-import { View, StyleSheet, Text, Dimensions } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Dimensions, Animated } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Surface } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Surface, useTheme } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 // Import Cadet Mode Screens
@@ -16,38 +16,124 @@ import AIBuddyScreen from '../screens/cadet/AIBuddyScreen';
 import FitnessScreen from '../screens/cadet/FitnessScreen';
 import ProfileScreen from '../screens/cadet/ProfileScreen';
 
-// Import FAB Component
+// Import ARYA Design System Components
+import { AryaText } from '../components/design-system';
 import ModeSwitcherFAB from '../components/common/ModeSwitcherFAB';
 
 const Tab = createBottomTabNavigator();
 const { width } = Dimensions.get('window');
 
-const CustomTabIcon = ({ iconText, focused }) => (
-  <View style={styles.tabIconContainer}>
-    {focused && (
-      <View style={styles.activeTabBackground}>
-        <LinearGradient
-          colors={['#667eea', '#764ba2']}
-          style={styles.activeTabGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+const CustomTabIcon = ({ iconName, focused, label }) => {
+  const theme = useTheme();
+  const scaleAnim = useRef(new Animated.Value(focused ? 1 : 0.85)).current;
+  const fadeAnim = useRef(new Animated.Value(focused ? 1 : 0.6)).current;
+  const bounceAnim = useRef(new Animated.Value(0)).current;
+  
+  useEffect(() => {
+    // Scale and fade animation
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: focused ? 1 : 0.85,
+        tension: 300,
+        friction: 10,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: focused ? 1 : 0.6,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    
+    // Bounce animation when tab becomes active
+    if (focused) {
+      Animated.sequence([
+        Animated.timing(bounceAnim, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.spring(bounceAnim, {
+          toValue: 0,
+          tension: 300,
+          friction: 10,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [focused, scaleAnim, fadeAnim, bounceAnim]);
+  
+  return (
+    <Animated.View 
+      style={[
+        styles.tabIconContainer,
+        {
+          opacity: fadeAnim,
+          transform: [
+            { scale: scaleAnim },
+            { 
+              translateY: bounceAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, -3],
+              })
+            }
+          ]
+        }
+      ]}
+    >
+      <Animated.View style={[
+        styles.tabIconWrapper,
+        focused && styles.activeTabWrapper,
+        {
+          transform: [{
+            scale: bounceAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [1, 1.1],
+            })
+          }]
+        }
+      ]}>
+        <Ionicons 
+          name={iconName}
+          size={22}
+          color={focused ? '#FFFFFF' : 'rgba(27, 41, 81, 0.6)'}
         />
-      </View>
-    )}
-    <Text style={[
-      styles.tabIcon,
-      { 
-        fontSize: focused ? 28 : 24,
-        opacity: focused ? 1 : 0.7
-      }
-    ]}>
-      {iconText}
-    </Text>
-  </View>
-);
+      </Animated.View>
+      <AryaText style={[
+        styles.tabLabel,
+        { 
+          color: focused ? theme.colors.primary : 'rgba(27, 41, 81, 0.6)',
+          fontWeight: focused ? '600' : '500'
+        }
+      ]}>
+        {label}
+      </AryaText>
+    </Animated.View>
+  );
+};
 
 const CadetTabNavigator = () => {
   const [activeTab, setActiveTab] = React.useState('Dashboard');
+  const tabBarSlideAnim = useRef(new Animated.Value(0)).current;
+  
+  const handleTabPress = (tabName) => {
+    setActiveTab(tabName);
+    
+    // Subtle slide animation for the entire tab bar
+    Animated.sequence([
+      Animated.timing(tabBarSlideAnim, {
+        toValue: 0.98,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(tabBarSlideAnim, {
+        toValue: 1,
+        tension: 300,
+        friction: 10,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   return (
     <>
@@ -57,18 +143,24 @@ const CadetTabNavigator = () => {
           tabBarStyle: styles.tabBar,
           tabBarShowLabel: false,
           tabBarBackground: () => (
-            <View style={styles.tabBarBackground}>
-              <Surface style={styles.tabBarSurface} elevation={8}>
+            <Animated.View 
+              style={[
+                styles.tabBarBackground,
+                {
+                  transform: [{ scale: tabBarSlideAnim }]
+                }
+              ]}
+            >
+              <Surface style={styles.tabBarSurface} elevation={0}>
                 <View style={styles.tabBarContent} />
               </Surface>
-            </View>
+            </Animated.View>
           ),
         }}
         screenListeners={{
           tabPress: (e) => {
-            // Update active tab when tab is pressed
             const routeName = e.target?.split('-')[0];
-            setActiveTab(routeName);
+            handleTabPress(routeName);
           },
         }}
       >
@@ -76,13 +168,14 @@ const CadetTabNavigator = () => {
         name="Dashboard"
         component={DashboardScreen}
         listeners={{
-          focus: () => setActiveTab('Dashboard'),
+          focus: () => handleTabPress('Dashboard'),
         }}
         options={{
           tabBarIcon: ({ focused }) => (
             <CustomTabIcon
-              iconText="🏠"
+              iconName={focused ? "home" : "home-outline"}
               focused={focused}
+              label="Home"
             />
           ),
         }}
@@ -92,13 +185,14 @@ const CadetTabNavigator = () => {
         name="Interview"
         component={InterviewScreen}
         listeners={{
-          focus: () => setActiveTab('Interview'),
+          focus: () => handleTabPress('Interview'),
         }}
         options={{
           tabBarIcon: ({ focused }) => (
             <CustomTabIcon
-              iconText="🎤"
+              iconName={focused ? "mic" : "mic-outline"}
               focused={focused}
+              label="INTV"
             />
           ),
         }}
@@ -108,13 +202,14 @@ const CadetTabNavigator = () => {
         name="AIBuddy"
         component={AIBuddyScreen}
         listeners={{
-          focus: () => setActiveTab('AIBuddy'),
+          focus: () => handleTabPress('AIBuddy'),
         }}
         options={{
           tabBarIcon: ({ focused }) => (
             <CustomTabIcon
-              iconText="🤖"
+              iconName={focused ? "chatbubble-ellipses" : "chatbubble-ellipses-outline"}
               focused={focused}
+              label="Buddy"
             />
           ),
         }}
@@ -124,13 +219,14 @@ const CadetTabNavigator = () => {
         name="Fitness"
         component={FitnessScreen}
         listeners={{
-          focus: () => setActiveTab('Fitness'),
+          focus: () => handleTabPress('Fitness'),
         }}
         options={{
           tabBarIcon: ({ focused }) => (
             <CustomTabIcon
-              iconText="💪"
+              iconName={focused ? "fitness" : "fitness-outline"}
               focused={focused}
+              label="Fitness"
             />
           ),
         }}
@@ -140,13 +236,14 @@ const CadetTabNavigator = () => {
         name="Profile"
         component={ProfileScreen}
         listeners={{
-          focus: () => setActiveTab('Profile'),
+          focus: () => handleTabPress('Profile'),
         }}
         options={{
           tabBarIcon: ({ focused }) => (
             <CustomTabIcon
-              iconText="👤"
+              iconName={focused ? "person" : "person-outline"}
               focused={focused}
+              label="Profile"
             />
           ),
         }}
@@ -164,8 +261,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderTopWidth: 0,
     elevation: 0,
-    height: 80, // Reduced height since no text labels
-    paddingBottom: 20,
+    height: 120, // Increased height from 100 to 120
+    paddingBottom: 0,
     paddingTop: 8,
     position: 'absolute',
     left: 0,
@@ -174,48 +271,58 @@ const styles = StyleSheet.create({
   },
   tabBarBackground: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: 0,
+    paddingBottom: 0,
+    paddingTop: 2,
   },
   tabBarSurface: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
     flex: 1,
     overflow: 'hidden',
-    elevation: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
     shadowRadius: 8,
+    elevation: 8,
   },
   tabBarContent: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'transparent',
+    paddingBottom: 40, // Increased padding from 34 to 40 for better spacing
+    paddingTop: 18, // Increased top padding from 8 to 12
   },
   tabIconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    minWidth: 60,
-    height: 50,
+    paddingVertical: 12, // Increased from 8 to 12 for more breathing room
+    paddingHorizontal: 12,
+    minWidth: 64,
+    height: 68, // Increased from 58 to 68 for better proportions
   },
-  activeTabBackground: {
-    position: 'absolute',
-    top: 4,
-    left: 4,
-    right: 4,
-    bottom: 4,
-    borderRadius: 18,
-    overflow: 'hidden',
+  tabIconWrapper: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
   },
-  activeTabGradient: {
-    flex: 1,
-    opacity: 0.15,
+  activeTabWrapper: {
+    backgroundColor: '#4169E1', // Royal Blue color
+    shadowColor: '#4169E1', // Match shadow to royal blue
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  tabIcon: {
+  tabLabel: {
+    fontSize: 11,
     textAlign: 'center',
+    includeFontPadding: false,
   },
 });
 

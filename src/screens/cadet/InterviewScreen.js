@@ -106,7 +106,7 @@ const InterviewScreen = () => {
             <View style={styles.header}>
               <Text style={styles.headerTitle}>🎤 Interview Practice</Text>
               <Text style={styles.headerSubtitle}>
-                Master your SSB interview with AI-powered practice
+                Master your interview with AI-powered practice
               </Text>
             </View>
 
@@ -131,21 +131,21 @@ const InterviewScreen = () => {
                   
                   <View style={styles.statsGrid}>
                     <View style={styles.statItem}>
-                      <Text style={styles.statNumber}>0</Text>
+                      <Text style={styles.statNumber}>12</Text>
                       <Text style={styles.statLabel}>Interviews</Text>
                     </View>
                     
                     <View style={styles.statDivider} />
                     
                     <View style={styles.statItem}>
-                      <Text style={styles.statNumber}>0</Text>
+                      <Text style={styles.statNumber}>78</Text>
                       <Text style={styles.statLabel}>Avg Score</Text>
                     </View>
                     
                     <View style={styles.statDivider} />
                     
                     <View style={styles.statItem}>
-                      <Text style={styles.statNumber}>0</Text>
+                      <Text style={styles.statNumber}>85%</Text>
                       <Text style={styles.statLabel}>Confidence</Text>
                     </View>
                   </View>
@@ -178,13 +178,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '800',
     color: '#2d3436',
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#636e72',
     textAlign: 'center',
     fontWeight: '500',
@@ -238,15 +238,6 @@ const styles = StyleSheet.create({
   interviewHeader: {
     backgroundColor: '#667eea',
     elevation: 0,
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 20,
-  },
-  headerSubtitle: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 14,
   },
   webview: {
     flex: 1,

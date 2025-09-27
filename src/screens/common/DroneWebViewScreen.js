@@ -103,21 +103,7 @@ const DroneWebViewScreen = ({ route }) => {
       <StatusBar barStyle="dark-content" backgroundColor="#667eea" />
       
       <SafeAreaView style={styles.container}>
-        {/* Header */}
-        <Appbar.Header style={styles.header}>
-          <Appbar.BackAction onPress={() => navigation.goBack()} color="#FFFFFF" />
-          <Appbar.Content 
-            title="🏃‍♂️ Drona Fitness"
-            subtitle={exerciseName ? `Training: ${exerciseName}` : 'Fitness Tracker'}
-            titleStyle={styles.headerTitle}
-            subtitleStyle={styles.headerSubtitle}
-          />
-          <Appbar.Action 
-            icon="refresh" 
-            onPress={() => webViewRef.current?.reload()} 
-            color="#FFFFFF"
-          />
-        </Appbar.Header>
+    
 
         {/* WebView */}
         <WebView

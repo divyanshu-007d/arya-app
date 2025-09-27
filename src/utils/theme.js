@@ -1,75 +1,52 @@
 /**
- * NDA StudyBuddy Theme Configuration
- * Defense-inspired design system using React Native Paper
+ * ARYA App Theme Configuration
+ * Enhanced theme using the ARYA Design System
  */
-import { MD3LightTheme } from 'react-native-paper';
+import { AryaLightTheme, AryaDarkTheme } from '../components/design-system/core/AryaTheme';
+import AryaColors from '../components/design-system/core/AryaColors';
+import AryaTypography from '../components/design-system/core/AryaTypography';
+import AryaSpacing from '../components/design-system/core/AryaSpacing';
+import AryaAnimations from '../components/design-system/core/AryaAnimations';
 
-export const ndaTheme = {
-  ...MD3LightTheme,
+// Main theme with ARYA Design System integration
+export const aryaTheme = {
+  ...AryaLightTheme,
   colors: {
-    ...MD3LightTheme.colors,
-    primary: '#1A237E',        // Navy Blue - Defense authority
-    secondary: '#FFD700',      // Gold - Military honors
-    tertiary: '#2E7D32',       // Dark Green - Achievement
-    error: '#C62828',          // Deep Red - Critical alerts
-    surface: '#FFFFFF',        // Clean White - Content areas
-    background: '#F5F5F5',     // Light Gray - App background
-    surfaceVariant: '#E8EAF6', // Light blue variant
-    onSurface: '#1A1A1A',      // Dark text on light surfaces
-    onPrimary: '#FFFFFF',      // White text on primary
-    outline: '#757575',        // Gray borders
+    ...AryaLightTheme.colors,
+    // Add gradient colors for easy access
+    gradients: AryaColors.light.gradients,
   },
-  fonts: {
-    displayLarge: { 
-      fontSize: 32, 
-      fontWeight: '700',
-      letterSpacing: 0.25
-    },
-    headlineMedium: { 
-      fontSize: 24, 
-      fontWeight: '600',
-      letterSpacing: 0
-    },
-    titleLarge: { 
-      fontSize: 20, 
-      fontWeight: '500',
-      letterSpacing: 0.15
-    },
-    titleMedium: { 
-      fontSize: 18, 
-      fontWeight: '500',
-      letterSpacing: 0.15
-    },
-    bodyLarge: { 
-      fontSize: 16, 
-      fontWeight: '400',
-      letterSpacing: 0.5
-    },
-    bodyMedium: { 
-      fontSize: 14, 
-      fontWeight: '400',
-      letterSpacing: 0.25
-    },
-    labelLarge: { 
-      fontSize: 14, 
-      fontWeight: '500',
-      letterSpacing: 0.1
-    },
-  },
-  roundness: 12, // More rounded corners for modern feel
+  fonts: AryaTypography,
+  spacing: AryaSpacing,
+  animations: AryaAnimations,
+  roundness: 16, // iOS-like rounded corners
 };
 
+export const aryaDarkTheme = {
+  ...AryaDarkTheme,
+  colors: {
+    ...AryaDarkTheme.colors,
+    gradients: AryaColors.dark.gradients,
+  },
+  fonts: AryaTypography,
+  spacing: AryaSpacing,
+  animations: AryaAnimations,
+  roundness: 16,
+};
+
+// Legacy support for existing code
+export const ndaTheme = aryaTheme;
 export const ndaColors = {
-  primary: '#1A237E',
-  secondary: '#FFD700',
-  success: '#2E7D32',
-  warning: '#F57C00',
-  error: '#C62828',
-  surface: '#FFFFFF',
-  background: '#F5F5F5',
-  text: '#1A1A1A',
-  textSecondary: '#666666',
-  border: '#E0E0E0',
+  primary: AryaColors.light.primary,
+  secondary: AryaColors.light.secondary,
+  success: AryaColors.light.success,
+  warning: AryaColors.light.warning,
+  error: AryaColors.light.error,
+  surface: AryaColors.light.surface,
+  background: AryaColors.light.background,
+  text: AryaColors.light.textPrimary,
+  textSecondary: AryaColors.light.textSecondary,
+  border: AryaColors.light.outline,
 };
 
-export default ndaTheme;
+export default aryaTheme;

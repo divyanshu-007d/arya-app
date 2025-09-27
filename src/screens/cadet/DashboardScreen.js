@@ -1,6 +1,6 @@
 /**
- * Dashboard Screen - Modern NDA Readiness Overview
- * Beautiful dashboard with progress indicators and daily missions
+ * ARYA Dashboard Screen - Clean iOS-style Redesign
+ * Modern dashboard with white background and colorful cards
  */
 import React, { useState, useEffect } from 'react';
 import {
@@ -9,407 +9,414 @@ import {
   ScrollView,
   Dimensions,
   Animated,
-  StatusBar,
 } from 'react-native';
 import {
-  Text,
-  Card,
-  Surface,
   ProgressBar,
   Chip,
+  useTheme,
 } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
+import {
+  AryaScreen,
+  AryaCard,
+  AryaText,
+  AryaContainer,
+} from '../../components/design-system';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const DashboardScreen = () => {
   const { user } = useAuth();
+  const theme = useTheme();
   const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 800,
+      duration: 500,
       useNativeDriver: true,
     }).start();
   }, []);
 
   const ReadinessGauge = ({ percentage }) => (
-    <Surface style={styles.gaugeContainer} elevation={8}>
-      <LinearGradient
-        colors={['#667eea', '#764ba2']}
-        style={styles.gaugeGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <Text style={styles.gaugePercentage}>{percentage}%</Text>
-        <Text style={styles.gaugeLabel}>NDA Ready</Text>
-      </LinearGradient>
-    </Surface>
+    <AryaCard 
+      variant="elevated" 
+      elevation={2}
+      style={styles.gaugeContainer}
+      padding="large"
+    >
+      <AryaContainer center>
+        <View style={styles.gaugeCircle}>
+          <AryaText.Display color="#4169E1" weight="bold" align="center">
+            {percentage}%
+          </AryaText.Display>
+          <AryaText.Label color="#666" align="center" weight="semibold">
+            Ready
+          </AryaText.Label>
+        </View>
+      </AryaContainer>
+    </AryaCard>
   );
 
   const StatsCard = ({ icon, title, value, color, subtitle }) => (
-    <Card style={styles.statsCard} elevation={4}>
-      <LinearGradient
-        colors={[color, `${color}CC`]}
-        style={styles.statsGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <Card.Content style={styles.statsContent}>
-          <Text style={styles.statsIcon}>{icon}</Text>
-          <Text style={styles.statsValue}>{value}</Text>
-          <Text style={styles.statsTitle}>{title}</Text>
-          <Text style={styles.statsSubtitle}>{subtitle}</Text>
-        </Card.Content>
-      </LinearGradient>
-    </Card>
+    <AryaCard 
+      variant="elevated" 
+      elevation={1}
+      style={[styles.statsCard, { backgroundColor: color + '15' }]}
+      padding="small"
+    >
+      <View style={styles.statsContent}>
+        <View style={[styles.iconContainer, { backgroundColor: color }]}>
+          <AryaText style={styles.statsIcon}>{icon}</AryaText>
+        </View>
+        <AryaText.Title weight="bold" color="#1a1a1a" style={styles.statsValue}>
+          {value}
+        </AryaText.Title>
+        <AryaText.Body color="#666" style={styles.statsTitle}>
+          {title}
+        </AryaText.Body>
+        <AryaText.Caption color="#999" style={styles.statsSubtitle}>
+          {subtitle}
+        </AryaText.Caption>
+      </View>
+    </AryaCard>
   );
 
-  const DailyMission = ({ icon, title, progress, isCompleted }) => (
-    <Surface style={styles.missionCard} elevation={2}>
+  const MissionCard = ({ icon, title, progress, isCompleted }) => (
+    <AryaCard variant="elevated" elevation={1} style={styles.missionCard}>
       <View style={styles.missionContent}>
-        <View style={styles.missionHeader}>
-          <Text style={styles.missionIcon}>{icon}</Text>
+        <View style={styles.missionLeft}>
+          <View style={styles.missionIconContainer}>
+            <AryaText style={styles.missionIcon}>{icon}</AryaText>
+          </View>
           <View style={styles.missionInfo}>
-            <Text style={styles.missionTitle}>{title}</Text>
+            <AryaText.Body weight="semibold" color="#1a1a1a">
+              {title}
+            </AryaText.Body>
             <View style={styles.progressContainer}>
-              <ProgressBar
-                progress={progress}
-                color="#667eea"
-                style={styles.progressBar}
-              />
-              <Text style={styles.progressText}>{Math.round(progress * 100)}%</Text>
+              <View style={styles.progressBarContainer}>
+                <ProgressBar
+                  progress={progress}
+                  color="#4169E1"
+                  style={styles.progressBar}
+                />
+              </View>
+              <AryaText.Caption color="#4169E1" weight="semibold">
+                {Math.round(progress * 100)}%
+              </AryaText.Caption>
             </View>
           </View>
-          {isCompleted && (
-            <Chip icon="check" style={styles.completedChip} textStyle={styles.chipText}>
-              Done
-            </Chip>
-          )}
         </View>
+        {isCompleted && (
+          <Chip 
+            icon="check" 
+            style={styles.completedChip} 
+            textStyle={styles.chipText}
+          >
+            Done
+          </Chip>
+        )}
       </View>
-    </Surface>
+    </AryaCard>
   );
 
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
-      
-      <LinearGradient
-        colors={['#f8f9fa', '#e9ecef']}
-        style={styles.container}
+    <AryaScreen statusBarStyle="dark-content" backgroundColor="#FAFAFA">
+      <ScrollView 
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        bounces={true}
+        contentContainerStyle={styles.scrollContent}
       >
-        <SafeAreaView style={styles.safeArea}>
+        
+        {/* Header */}
+        <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
+          <AryaText.Display color="#1a1a1a" weight="bold">
+            Dashboard
+          </AryaText.Display>
+          <AryaText.Body color="#666" style={styles.headerSubtitle}>
+            Your preparation overview
+          </AryaText.Body>
+        </Animated.View>
+
+        {/* Readiness Section */}
+        <Animated.View style={[styles.readinessSection, { opacity: fadeAnim }]}>
+          <AryaText.Headline color="#1a1a1a" weight="semibold" style={styles.sectionTitle}>
+            Readiness Score
+          </AryaText.Headline>
+          <ReadinessGauge percentage={78} />
+          <AryaText.Body color="#666" align="center" style={styles.gaugeDescription}>
+            Keep training to boost your score! 🎯
+          </AryaText.Body>
+        </Animated.View>
+
+        {/* Stats Grid */}
+        <Animated.View style={[styles.statsSection, { opacity: fadeAnim }]}>
+          <AryaText.Headline color="#1a1a1a" weight="semibold" style={styles.sectionTitle}>
+            Today's Activity
+          </AryaText.Headline>
           
-          <ScrollView 
-            style={styles.scrollView}
-            showsVerticalScrollIndicator={false}
-            bounces={true}
-          >
+          <View style={styles.statsGrid}>
+            <View style={styles.statsRow}>
+              <StatsCard
+                icon="🧠"
+                title="Study"
+                value="3"
+                color="#667eea"
+                subtitle="Sessions"
+              />
+              
+              <StatsCard
+                icon="💪"
+                title="Fitness"
+                value="2"
+                color="#f093fb"
+                subtitle="Workouts"
+              />
+            </View>
             
-            {/* Header */}
-            <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
-              <Text style={styles.headerTitle}>Dashboard</Text>
-              <Text style={styles.headerSubtitle}>Your NDA preparation overview</Text>
-            </Animated.View>
-
-            {/* NDA Readiness Gauge */}
-            <Animated.View style={[styles.gaugeSection, { opacity: fadeAnim }]}>
-              <ReadinessGauge percentage={15} />
-              <Text style={styles.gaugeDescription}>
-                Keep training consistently to boost your readiness score!
-              </Text>
-            </Animated.View>
-
-            {/* Stats Grid */}
-            <Animated.View style={[styles.statsSection, { opacity: fadeAnim }]}>
-              <Text style={styles.sectionTitle}>Performance Stats</Text>
-              
-              <View style={styles.statsGrid}>
-                <StatsCard
-                  icon="🧠"
-                  title="Study"
-                  value="0"
-                  color="#6c5ce7"
-                  subtitle="Sessions today"
-                />
-                
-                <StatsCard
-                  icon="💪"
-                  title="Fitness"
-                  value="0"
-                  color="#fd79a8"
-                  subtitle="Workouts done"
-                />
-                
-                <StatsCard
-                  icon="🎤"
-                  title="Interview"
-                  value="0"
-                  color="#fdcb6e"
-                  subtitle="Practice rounds"
-                />
-                
-                <StatsCard
-                  icon="🏆"
-                  title="Points"
-                  value="0"
-                  color="#00b894"
-                  subtitle="Total earned"
-                />
-              </View>
-            </Animated.View>
-
-            {/* Daily Missions */}
-            <Animated.View style={[styles.missionsSection, { opacity: fadeAnim }]}>
-              <Text style={styles.sectionTitle}>Today's Missions</Text>
-              
-              <DailyMission
-                icon="📚"
-                title="Complete 1 Study Session"
-                progress={0}
-                isCompleted={false}
+            <View style={styles.statsRow}>
+              <StatsCard
+                icon="🎤"
+                title="Interview"
+                value="5"
+                color="#fdcb6e"
+                subtitle="Practice"
               />
               
-              <DailyMission
-                icon="🏃‍♂️"
-                title="Do 20 Push-ups"
-                progress={0}
-                isCompleted={false}
+              <StatsCard
+                icon="🏆"
+                title="Points"
+                value="1,250"
+                color="#00b894"
+                subtitle="Earned"
               />
-              
-              <DailyMission
-                icon="🎯"
-                title="Practice 1 Interview"
-                progress={0}
-                isCompleted={false}
-              />
-            </Animated.View>
+            </View>
+          </View>
+        </Animated.View>
 
-            {/* Motivation Section */}
-            <Animated.View style={[styles.motivationSection, { opacity: fadeAnim }]}>
-              <Card style={styles.motivationCard} elevation={6}>
-                <LinearGradient
-                  colors={['#ff7675', '#fd79a8']}
-                  style={styles.motivationGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                >
-                  <Card.Content style={styles.motivationContent}>
-                    <Text style={styles.motivationIcon}>🚀</Text>
-                    <Text style={styles.motivationTitle}>
-                      Ready to Start Training?
-                    </Text>
-                    <Text style={styles.motivationText}>
-                      Every champion was once a beginner who refused to give up.
-                      Your NDA journey starts with today's first step!
-                    </Text>
-                  </Card.Content>
-                </LinearGradient>
-              </Card>
-            </Animated.View>
+        {/* Daily Missions */}
+        <Animated.View style={[styles.missionsSection, { opacity: fadeAnim }]}>
+          <AryaText.Headline color="#1a1a1a" weight="semibold" style={styles.sectionTitle}>
+            Today's Goals
+          </AryaText.Headline>
+          
+          <MissionCard
+            icon="📚"
+            title="Complete 1 Study Session"
+            progress={0.6}
+            isCompleted={false}
+          />
+          
+          <MissionCard
+            icon="🏃‍♂️"
+            title="Do 20 Push-ups"
+            progress={1.0}
+            isCompleted={true}
+          />
+          
+          <MissionCard
+            icon="🎯"
+            title="Practice Interview"
+            progress={0.4}
+            isCompleted={false}
+          />
+        </Animated.View>
 
-          </ScrollView>
-        </SafeAreaView>
-      </LinearGradient>
-    </SafeAreaProvider>
+        {/* Motivation Section */}
+        <Animated.View style={[styles.motivationSection, { opacity: fadeAnim }]}>
+          <AryaCard 
+            variant="elevated" 
+            elevation={2}
+            style={styles.motivationCard}
+            padding="large"
+          >
+            <AryaContainer center>
+              <AryaText style={styles.motivationIcon}>🚀</AryaText>
+              <AryaText.Title color="#1a1a1a" weight="bold" align="center" style={styles.motivationTitle}>
+                Ready to Excel?
+              </AryaText.Title>
+              <AryaText.Body color="#666" align="center" style={styles.motivationText}>
+                Every expert was once a beginner. Start your training journey today!
+              </AryaText.Body>
+            </AryaContainer>
+          </AryaCard>
+        </Animated.View>
+
+      </ScrollView>
+    </AryaScreen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
+    backgroundColor: '#FAFAFA',
+  },
+  scrollContent: {
+    paddingBottom: 140, // Extra space for tab bar
   },
   header: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 16,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#2d3436',
-    marginBottom: 4,
+    paddingHorizontal: 16,
+    paddingTop: 60,
+    paddingBottom: 20,
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: '#636e72',
-    fontWeight: '500',
+    marginTop: 4,
   },
-  gaugeSection: {
-    alignItems: 'center',
-    paddingHorizontal: 24,
+  sectionTitle: {
+    marginBottom: 16,
+  },
+  
+  // Readiness Section
+  readinessSection: {
+    paddingHorizontal: 16,
     marginBottom: 32,
   },
   gaugeContainer: {
+    alignSelf: 'center',
     width: 160,
     height: 160,
     borderRadius: 80,
-    marginBottom: 16,
-    overflow: 'hidden',
+    marginVertical: 16,
+    backgroundColor: '#FFFFFF',
   },
-  gaugeGradient: {
-    flex: 1,
+  gaugeCircle: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#F0F4FF',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  gaugePercentage: {
-    fontSize: 36,
-    fontWeight: '900',
-    color: '#FFFFFF',
-  },
-  gaugeLabel: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.9)',
-    fontWeight: '600',
+    borderWidth: 8,
+    borderColor: '#E8EFFF',
   },
   gaugeDescription: {
-    fontSize: 16,
-    color: '#636e72',
-    textAlign: 'center',
+    marginTop: 8,
     fontStyle: 'italic',
-    paddingHorizontal: 20,
   },
+  
+  // Stats Section
   statsSection: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     marginBottom: 32,
   },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#2d3436',
-    marginBottom: 16,
-  },
   statsGrid: {
+    // Container for all stats cards
+  },
+  statsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
+    marginBottom: 8,
+    paddingHorizontal: 4, // Add small padding to create gap
   },
   statsCard: {
-    width: (width - 72) / 2,
-    marginBottom: 16,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  statsGradient: {
-    padding: 20,
+    width: (width - 48) / 2, // Adjusted for proper spacing: (screen width - padding - gap) / 2
+    backgroundColor: '#FFFFFF',
+    minHeight: 100, // Shorter card height
   },
   statsContent: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
-  statsIcon: {
-    fontSize: 32,
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 8,
   },
-  statsValue: {
-    fontSize: 32,
-    fontWeight: '900',
+  statsIcon: {
+    fontSize: 16,
     color: '#FFFFFF',
-    marginBottom: 4,
+  },
+  statsValue: {
+    fontSize: 20,
+    marginBottom: 1,
   },
   statsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.9)',
-    marginBottom: 2,
+    fontSize: 13,
+    marginBottom: 1,
   },
   statsSubtitle: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
-    textAlign: 'center',
+    fontSize: 11,
   },
+  
+  // Missions Section
   missionsSection: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     marginBottom: 32,
   },
   missionCard: {
-    borderRadius: 16,
-    marginBottom: 12,
+    marginBottom: 8,
     backgroundColor: '#FFFFFF',
   },
   missionContent: {
-    padding: 20,
-  },
-  missionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  missionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  missionIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#F0F4FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   missionIcon: {
-    fontSize: 24,
-    marginRight: 16,
+    fontSize: 20,
   },
   missionInfo: {
     flex: 1,
   },
-  missionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2d3436',
-    marginBottom: 8,
-  },
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 8,
   },
-  progressBar: {
+  progressBarContainer: {
     flex: 1,
-    height: 6,
-    borderRadius: 3,
     marginRight: 12,
   },
-  progressText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#667eea',
+  progressBar: {
+    height: 6,
+    borderRadius: 3,
   },
   completedChip: {
     backgroundColor: '#00b894',
+    marginLeft: 12,
   },
   chipText: {
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
   },
+  
+  // Motivation Section
   motivationSection: {
-    paddingHorizontal: 24,
-    paddingBottom: 100, // Account for tab bar
+    paddingHorizontal: 16,
+    marginBottom: 32,
   },
   motivationCard: {
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  motivationGradient: {
-    padding: 24,
-  },
-  motivationContent: {
-    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
   },
   motivationIcon: {
     fontSize: 48,
     marginBottom: 16,
   },
   motivationTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textAlign: 'center',
     marginBottom: 12,
   },
   motivationText: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
-    textAlign: 'center',
     lineHeight: 22,
-    fontWeight: '500',
   },
 });
 
