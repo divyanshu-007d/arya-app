@@ -1,8 +1,8 @@
 /**
- * Drona Fitness WebView Screen
- * Displays the Drona fitness tracker web app and handles alerts to navigate back
+ * Drona Fitness WebBrowser Screen
+ * Opens the Drona fitness tracker web app in the system browser
  */
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -10,17 +10,20 @@ import {
   BackHandler,
   Alert,
   Text,
+  TouchableOpacity,
 } from 'react-native';
 import {
-  Appbar,
+  Button,
+  Card,
+  Title,
+  Paragraph,
 } from 'react-native-paper';
-import { WebView } from 'react-native-webview';
+import * as WebBrowser from 'expo-web-browser';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
 const DroneWebViewScreen = ({ route }) => {
   const navigation = useNavigation();
-  const webViewRef = useRef(null);
   const { exerciseName } = route.params || {};
 
   useEffect(() => {
@@ -33,100 +36,63 @@ const DroneWebViewScreen = ({ route }) => {
     return () => backHandler.remove();
   }, [navigation]);
 
-  const handleNavigationStateChange = (navState) => {
-    // Log the navigation for debugging
-    console.log('WebView Navigation:', navState.url);
-  };
-
-  const handleMessage = (event) => {
-    const data = event.nativeEvent.data;
-    console.log('WebView Message:', data);
-    
+  const openDronaWebsite = async () => {
     try {
-      const message = JSON.parse(data);
-      if (message.type === 'alert' || message.type === 'workout_complete') {
-        // Navigate back to fitness screen when there's an alert
-        navigation.goBack();
+      const result = await WebBrowser.openBrowserAsync('https://drona-official.web.app/');
+      console.log('WebBrowser result:', result);
+      
+      // Navigate back when the browser is closed
+      if (result.type === 'cancel' || result.type === 'dismiss') {
+        // User closed the browser, stay on current screen
+        console.log('User closed the browser');
       }
     } catch (error) {
-      // If it's a regular alert message, also navigate back
-      if (data.includes('alert') || data.includes('complete')) {
-        navigation.goBack();
-      }
+      console.error('Error opening browser:', error);
+      Alert.alert(
+        'Error',
+        'Unable to open the fitness tracker. Please try again.',
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
     }
   };
 
-  const injectedJavaScript = `
-    // Override alert function to send message back to React Native
-    const originalAlert = window.alert;
-    window.alert = function(message) {
-      window.ReactNativeWebView.postMessage(JSON.stringify({
-        type: 'alert',
-        message: message
-      }));
-      // Don't show the original alert - just send message to React Native
-      return;
-    };
-
-    // Listen for workout completion or other events
-    window.addEventListener('beforeunload', function() {
-      window.ReactNativeWebView.postMessage(JSON.stringify({
-        type: 'workout_complete'
-      }));
-    });
-
-    // Custom event listeners for fitness tracker
-    document.addEventListener('DOMContentLoaded', function() {
-      // You can add custom listeners here for specific events from Drona app
-      console.log('Drona Fitness Tracker Loaded for: ${exerciseName || 'Exercise'}');
-    });
-
-    true; // Required for injected JavaScript
-  `;
-
-  const handleError = (syntheticEvent) => {
-    const { nativeEvent } = syntheticEvent;
-    console.error('WebView Error:', nativeEvent);
-    
-    Alert.alert(
-      'Loading Error',
-      'Unable to load the fitness tracker. Please check your internet connection.',
-      [
-        { text: 'Retry', onPress: () => webViewRef.current?.reload() },
-        { text: 'Go Back', onPress: () => navigation.goBack() }
-      ]
-    );
-  };
+  // Automatically open the browser when the screen loads
+  useEffect(() => {
+    openDronaWebsite();
+  }, []);
 
   return (
     <SafeAreaProvider>
       <StatusBar barStyle="dark-content" backgroundColor="#667eea" />
       
       <SafeAreaView style={styles.container}>
-    
-
-        {/* WebView */}
-        <WebView
-          ref={webViewRef}
-          source={{ uri: 'https://drona-official.web.app' }}
-          style={styles.webview}
-          onNavigationStateChange={handleNavigationStateChange}
-          onMessage={handleMessage}
-          onError={handleError}
-          injectedJavaScript={injectedJavaScript}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          startInLoadingState={true}
-          scalesPageToFit={true}
-          mixedContentMode="compatibility"
-          allowsInlineMediaPlayback={true}
-          mediaPlaybackRequiresUserAction={false}
-          renderLoading={() => (
-            <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading Drona Fitness Tracker...</Text>
-            </View>
-          )}
-        />
+        <Card style={styles.card}>
+          <Card.Content>
+            <Title style={styles.title}>Drona Fitness Tracker</Title>
+            <Paragraph style={styles.subtitle}>
+              {exerciseName ? `Starting ${exerciseName}` : 'Opening fitness tracker...'}
+            </Paragraph>
+            <Text style={styles.description}>
+              The Drona fitness tracker will open in your default browser for the best experience.
+            </Text>
+            <Button 
+              mode="contained" 
+              onPress={openDronaWebsite}
+              style={styles.button}
+              contentStyle={styles.buttonContent}
+            >
+              Open Drona Fitness Tracker
+            </Button>
+            <Button 
+              mode="outlined" 
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}
+              contentStyle={styles.buttonContent}
+            >
+              Go Back
+            </Button>
+          </Card.Content>
+        </Card>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -135,34 +101,45 @@ const DroneWebViewScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    backgroundColor: '#667eea',
-    elevation: 4,
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 18,
-  },
-  headerSubtitle: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 14,
-  },
-  webview: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    padding: 20,
   },
-  loadingText: {
-    fontSize: 16,
+  card: {
+    elevation: 8,
+    borderRadius: 12,
+  },
+  title: {
+    textAlign: 'center',
+    color: '#667eea',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  subtitle: {
+    textAlign: 'center',
     color: '#666666',
-    marginTop: 16,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  description: {
+    textAlign: 'center',
+    color: '#888888',
+    fontSize: 14,
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  button: {
+    backgroundColor: '#667eea',
+    marginBottom: 12,
+    borderRadius: 8,
+  },
+  backButton: {
+    borderColor: '#667eea',
+    borderRadius: 8,
+  },
+  buttonContent: {
+    paddingVertical: 8,
   },
 });
 
